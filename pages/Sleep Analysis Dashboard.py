@@ -78,9 +78,13 @@ with tab1:
         with col3:
             bmi_category = st.selectbox("⚖️ BMI Category", ["Underweight", "Normal", "Overweight", "Obese"])
             snoring_frequency = st.number_input("🔊 Snoring Frequency (per week)", min_value=0, max_value=21, value=1)
+            sleep_quality = st.slider("⭐ Sleep Quality", 1, 10, 6, help="1=Poor, 10=Excellent")
         
         with col4:
             working_hours = st.number_input("⏰ Working Hours (per day)", min_value=0, max_value=24, value=8)
+            caffeine_intake = st.slider("☕ Caffeine Cups (per day)", 0, 10, 2)
+            exercise_frequency = st.slider("🏃 Exercise (days/week)", 0, 7, 3)
+            body_temperature = st.number_input("🌡️ Body Temp (°C)", min_value=35.0, max_value=40.0, value=37.0, step=0.1)
         
         submit = st.form_submit_button("🔍 Generate Prediction", use_container_width=True)
 
@@ -102,10 +106,14 @@ with tab1:
                 "bmi_category": bmi_category,
                 "snoring_frequency": int(snoring_frequency),
                 "working_hours": int(working_hours),
+                "sleep_quality": int(sleep_quality),
+                "caffeine_intake": int(caffeine_intake),
+                "exercise_frequency": int(exercise_frequency),
+                "body_temperature": float(body_temperature),
             }
             
-            # Get ML prediction
-            diagnosis, severity = classify(inputs)
+            # Get ML prediction with detailed results
+            diagnosis, severity, ml_details = classify(inputs)
             
             # Prepare record for database
             row = {
@@ -123,6 +131,10 @@ with tab1:
                 "working_hours": int(working_hours),
                 "diagnosis": diagnosis,
                 "severity": int(severity),
+                "ml_model_used": ml_details.get("best_model_name"),
+                "ml_confidence": ml_details.get("best_confidence"),
+                "ml_model_accuracy": ml_details.get("best_model_accuracy"),
+                "ml_all_predictions": ml_details.get("all_predictions"),
             }
             
             # Save to database
