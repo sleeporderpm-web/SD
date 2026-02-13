@@ -1,13 +1,11 @@
 import sys
 from pathlib import Path
 
-# Find and add repo root to path
-current_path = Path(__file__).resolve()
-while current_path != current_path.parent:
-    if (current_path / "lib").exists() and (current_path / "streamlit_app.py").exists():
-        sys.path.insert(0, str(current_path))
-        break
-    current_path = current_path.parent
+# Add repo root to sys.path
+_file = Path(__file__).resolve()
+_repo_root = _file.parent.parent  # Go up from pages/ to repo root
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
 
 import streamlit as st
 from lib.auth import verify
