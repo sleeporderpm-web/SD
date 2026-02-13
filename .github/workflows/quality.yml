@@ -31,7 +31,8 @@ jobs:
       - name: "✓ Syntax Check"
         run: |
           echo "Checking Python syntax..."
-          python -m py_compile streamlit_app.py lib/*.py
+          python -m py_compile streamlit_app.py
+          python -m py_compile lib/auth.py lib/db.py lib/ml.py lib/pdf.py
           echo "✓ All files have valid syntax"
       
       - name: "✓ Module Imports"
