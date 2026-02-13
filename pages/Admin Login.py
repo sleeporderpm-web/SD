@@ -3,8 +3,26 @@ import streamlit as st
 
 st.set_page_config(page_title="Admin Login", page_icon="🔐", layout="centered")
 
+# Sidebar - Service Status
+with st.sidebar:
+    st.write("## 🏥 Service Status")
+    service_open = st.checkbox("🟢 Service Open", value=True, key="service_status")
+    
+    if not service_open:
+        st.warning("⛔ Service Currently Closed")
+    else:
+        st.success("✅ Service Online")
+    
+    st.divider()
+    if st.button("🏠 Home", use_container_width=True):
+        st.switch_page("streamlit_app.py")
+
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
+
+if not st.session_state.get("service_status", True):
+    st.error("⛔ Service is temporarily closed. Please try again later.")
+    st.stop()
 
 st.title("🔐 Admin Login")
 st.write("Enter the admin password to access the Hospital Action Panel.")

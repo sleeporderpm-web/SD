@@ -1,11 +1,36 @@
+import sys
+import os
+
+# Fix import path for lib module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 import pandas as pd
 from lib.db import list_all_analyses
 
 st.set_page_config(page_title="Admin Portal", page_icon="🛠", layout="wide")
 
+# Sidebar - Service Status
+with st.sidebar:
+    st.write("## 🏥 Service Status")
+    service_open = st.checkbox("🟢 Service Open", value=True, key="service_status")
+    
+    if not service_open:
+        st.warning("⛔ Service Currently Closed")
+    else:
+        st.success("✅ Service Online")
+    
+    st.divider()
+    if st.button("🏠 Home", use_container_width=True):
+        st.session_state["is_admin"] = False
+        st.switch_page("streamlit_app.py")
+
 if not st.session_state.get("is_admin"):
     st.error("❌ Unauthorized Access")
+    st.stop()
+
+if not st.session_state.get("service_status", True):
+    st.error("⛔ Service is temporarily closed. Please try again later.")
     st.stop()
 
 st.title("🛠 Hospital Action Panel")

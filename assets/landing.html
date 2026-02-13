@@ -7,16 +7,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Arial', sans-serif; background-color: #050a14; color: white; line-height: 1.6; }
         
-        nav { 
-            position: fixed; top: 0; width: 100%; display: flex; 
-            justify-content: space-between; align-items: center; 
-            padding: 20px 80px; background: rgba(5, 10, 20, 0.95); z-index: 1000; 
-        }
-        .logo { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
-        .logo span { color: #f39c12; }
-        .nav-links a { color: white; text-decoration: none; margin-left: 30px; font-weight: bold; font-size: 0.85rem; }
-        .admin-btn { border: 2px solid #f39c12; padding: 5px 15px; border-radius: 5px; color: #f39c12 !important; }
-
         .hero { 
             height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
             url('https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=2060&auto=format&fit=crop');
@@ -30,37 +20,13 @@
         .about-image img { width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .about-text { flex: 1; max-width: 600px; }
         .about-text h2 { font-size: 2.5rem; margin-bottom: 20px; color: #f39c12; }
-
-        .modal { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            background: white; color: #333; padding: 40px; border-radius: 10px; z-index: 2000; width: 400px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-        .modal h2 { margin-bottom: 20px; text-align: center; color: #050a14; }
-        .modal input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; display: block; }
-        .submit-btn { background: #f39c12; color: white; width: 100%; padding: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px; }
-        .submit-btn:hover { background: #e67e22; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1500; }
-        
-        .switch-text { text-align: center; margin-top: 15px; font-size: 0.9rem; }
-        .switch-text a { color: #3498db; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">CLASSIFICATION OF <span>SLEEP DISORDERS</span></div>
-        <div class="nav-links">
-            <a href="/">HOME</a>
-            <a href="#about">ABOUT</a>
-            <a href="javascript:void(0)" onclick="openModal('regModal')">REGISTER</a>
-            <a href="javascript:void(0)" onclick="openModal('loginModal')">LOGIN</a>
-            <a class="admin-btn">ADMIN</a>
-        </div>
-    </nav>
-
     <section class="hero">
         <h1>AN ENSEMBLE LEARNING APPROACH FOR IMPROVED <span> SLEEP DISORDER PREDICTION</span></h1>
+        <p style="color: #f39c12; font-size: 1.2rem; margin-top: 30px;">Use the sidebar to register or login →</p>
     </section>
 
     <section id="about" class="about-section">
@@ -77,38 +43,8 @@
         </div>
     </section>
 
-    <div id="overlay" class="overlay" onclick="closeModals()"></div>
-
-    <div id="regModal" class="modal">
-    <h2>Register</h2>
-    <div>
-        <p style="text-align:center;color:#666;">Use the tabs below to register</p>
-    </div>
-    <div class="switch-text">Already have an account? <a href="javascript:void(0)" onclick="switchModal('loginModal')">Login</a></div>
-    </div>
-
-    <div id="loginModal" class="modal">
-        <h2>Login</h2>
-        <div>
-            <p style="text-align:center;color:#666;">Use the tabs below to login</p>
-        </div>
-        <div class="switch-text">New user? <a href="javascript:void(0)" onclick="switchModal('regModal')">Register</a></div>
-    </div>
-
     <script>
-        function openModal(id) {
-            document.getElementById(id).style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-        function closeModals() {
-            document.getElementById('regModal').style.display = 'none';
-            document.getElementById('loginModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-        function switchModal(id) { 
-            closeModals(); 
-            setTimeout(() => openModal(id), 100); 
-        }
+        // Navigation handled by Streamlit sidebar
     </script>
 </body>
 </html>

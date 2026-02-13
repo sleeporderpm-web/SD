@@ -1,11 +1,16 @@
+import sys
+import os
+
+# Fix import path for lib module
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import streamlit as st
-from lib.auth import register, verify
 
 st.set_page_config(
     page_title="Sleep Disorder Analysis MVP",
     page_icon="😴",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 if "user_email" not in st.session_state:
@@ -13,12 +18,55 @@ if "user_email" not in st.session_state:
 if "is_admin" not in st.session_state:
     st.session_state["is_admin"] = False
 
-# Try to load landing page HTML
+# Sidebar - Service Status
+with st.sidebar:
+    st.write("## 🏥 Service Status")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        service_open = st.checkbox("🟢 Service Open", value=True, key="service_status")
+    
+    if not service_open:
+        st.warning("⛔ Service Currently Closed for Maintenance")
+    else:
+        st.success("✅ Service Online")
+    
+    st.divider()
+    
+    if st.session_state.get("user_email"):
+        st.write(f"👤 **Logged in as:**\n{st.session_state['user_email']}")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📊 Dashboard", use_container_width=True):
+                st.switch_page("pages/Sleep Analysis Dashboard.py")
+        with col2:
+            if st.button("🚪 Logout", use_container_width=True):
+                st.session_state["user_email"] = None
+                st.session_state["is_admin"] = False
+                st.rerun()
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📝 Register", use_container_width=True):
+                st.switch_page("pages/Register.py")
+        with col2:
+            if st.button("🔐 Login", use_container_width=True):
+                st.switch_page("pages/Login.py")
+        
+        if st.button("👨‍⚕️ Admin Login", use_container_width=True, type="primary"):
+            st.switch_page("pages/Admin Login.py")
+    
+    st.divider()
+    st.write("### 📊 Data Management")
+    if st.button("📊 View Data Tracker", use_container_width=True):
+        st.switch_page("pages/Data Tracker.py")
+
+# Landing Page
 try:
     with open("assets/landing.html", "r", encoding="utf-8") as f:
         landing = f.read()
     from streamlit.components.v1 import html
-    html(landing, height=1200, scrolling=True)
+    html(landing, height=600, scrolling=True)
 except FileNotFoundError:
     # Fallback content if HTML file not found
     st.title("😴 Sleep Disorder Classification")
@@ -29,65 +77,6 @@ except FileNotFoundError:
     - **Random Forest** - Handling high-dimensional physiological data
     - **Support Vector Machines (SVM)** - Accurate classification of sleep disorders
     """)
-
-st.divider()
-
-# Authentication Tabs
-st.write("## 🔓 Access Your Account")
-
-col1, col2, col3 = st.columns([1, 1, 1])
-
-with col1:
-    st.subheader("📝 Register")
-    with st.form("register_form", clear_on_submit=True):
-        r_email = st.text_input("Email", key="reg_email", placeholder="your.email@example.com")
-        r_password = st.text_input("Password", type="password", key="reg_password", placeholder="Secure password")
-        r_password_confirm = st.text_input("Confirm Password", type="password", key="reg_confirm", placeholder="Confirm password")
-        r_submit = st.form_submit_button("✅ Create Account", use_container_width=True)
-        
-        if r_submit:
-            if not r_email or not r_password:
-                st.error("❌ Email and password are required.")
-            elif r_password != r_password_confirm:
-                st.error("❌ Passwords do not match.")
-            elif len(r_password) < 6:
-                st.error("❌ Password must be at least 6 characters.")
-            else:
-                try:
-                    ok = register(r_email.strip().lower(), r_password)
-                    if ok:
-                        st.success("✅ Account created! Please login.")
-                    else:
-                        st.error("❌ User already exists.")
-                except Exception as e:
-                    st.error(f"❌ Registration error: {str(e)}")
-
-with col2:
-    st.subheader("🔐 Login")
-    with st.form("login_form", clear_on_submit=True):
-        l_email = st.text_input("Email", key="login_email", placeholder="your.email@example.com")
-        l_password = st.text_input("Password", type="password", key="login_password", placeholder="Your password")
-        l_submit = st.form_submit_button("🚪 Login", use_container_width=True)
-        
-        if l_submit:
-            if not l_email or not l_password:
-                st.error("❌ Email and password are required.")
-            else:
-                try:
-                    if verify(l_email.strip().lower(), l_password):
-                        st.session_state["user_email"] = l_email.strip().lower()
-                        st.success("✅ Logged in successfully!")
-                        st.switch_page("pages/Sleep Analysis Dashboard.py")
-                    else:
-                        st.error("❌ Invalid credentials.")
-                except Exception as e:
-                    st.error(f"❌ Login error: {str(e)}")
-
-with col3:
-    st.subheader("👨‍⚕️ Admin Access")
-    st.write("Hospital administrators can access the action panel.")
-    if st.button("🔐 Admin Login", use_container_width=True, type="primary"):
-        st.switch_page("pages/Admin Login.py")
 
 st.divider()
 

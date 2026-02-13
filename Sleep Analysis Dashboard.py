@@ -81,6 +81,7 @@ if rows:
     df = df[["created_at", "diagnosis", "phone", "severity", "id"]]
     st.dataframe(df, use_container_width=True)
     if "last_saved_id" in st.session_state and st.session_state["last_saved_id"]:
-        st.page_link("pages/Report View.py", label="View last report", icon="🧾", args={"id": st.session_state["last_saved_id"]})
+        if st.button("View last report", icon="🧾", use_container_width=True):
+            st.switch_page("pages/Report View.py")
 else:
     st.info("No past records.")

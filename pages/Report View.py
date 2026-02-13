@@ -1,8 +1,32 @@
+import sys
+import os
+
+# Fix import path for lib module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 from lib.db import get_analysis_by_id
 from lib.pdf import build_report
 
 st.set_page_config(page_title="Report View", page_icon="🧾", layout="centered")
+
+# Sidebar - Service Status
+with st.sidebar:
+    st.write("## 🏥 Service Status")
+    service_open = st.checkbox("🟢 Service Open", value=True, key="service_status")
+    
+    if not service_open:
+        st.warning("⛔ Service Currently Closed")
+    else:
+        st.success("✅ Service Online")
+    
+    st.divider()
+    if st.button("🏠 Home", use_container_width=True):
+        st.switch_page("streamlit_app.py")
+
+if not st.session_state.get("service_status", True):
+    st.error("⛔ Service is temporarily closed. Please try again later.")
+    st.stop()
 
 # Get report ID from query params or session state
 analysis_id = None
@@ -89,6 +113,54 @@ elif severity == 2:
     st.warning(f"🟡 **MODERATE RISK**\n\n{diagnosis}")
 else:
     st.success(f"🟢 **NORMAL / LOW RISK**\n\n{diagnosis}")
+
+st.divider()
+
+# ML Prediction Summary Section
+st.subheader("📊 Machine Learning Analysis Summary")
+
+severity_labels = {
+    0: "🟢 GREEN - No Risk",
+    1: "🟡 YELLOW - Low Risk / Needs Review",
+    2: "🟠 ORANGE - Moderate Risk",
+    3: "🔴 RED - High Risk / Urgent"
+}
+
+col1, col2 = st.columns([2, 1])
+with col1:
+    st.write(f"**Risk Level:** {severity_labels.get(severity, 'Unknown')}")
+with col2:
+    st.write(f"**Severity Score:** {severity}/3")
+
+# Display ML classification details based on severity
+if severity == 0:
+    st.info(
+        "**Normal Sleep Pattern Detected**\n\n"
+        "- All vital signs within healthy ranges\n"
+        "- No indicators of sleep-related disorders\n"
+        "- Recommendation: Continue current sleep habits and regular monitoring"
+    )
+elif severity == 1:
+    st.info(
+        "**Mild Abnormalities Detected**\n\n"
+        "- Some vital signs show minor deviations\n"
+        "- Further monitoring recommended\n"
+        "- Recommendation: Consider lifestyle adjustments for better sleep quality"
+    )
+elif severity == 2:
+    st.warning(
+        "**Moderate Sleep Disorder Risk Identified**\n\n"
+        "- Multiple vital sign abnormalities detected\n"
+        "- Sleep deprivation or irregular patterns observed\n"
+        "- Recommendation: Medical consultation with sleep specialist recommended"
+    )
+elif severity == 3:
+    st.error(
+        "**High-Risk Sleep Disorder Detected**\n\n"
+        "- Critical vital sign abnormalities present\n"
+        "- Urgent medical intervention may be needed\n"
+        "- Recommendation: Immediate healthcare professional consultation required"
+    )
 
 st.divider()
 

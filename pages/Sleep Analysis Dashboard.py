@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Fix import path for lib module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 import pandas as pd
 from lib.ml import classify
@@ -5,11 +11,29 @@ from lib.db import save_analysis, list_user_analyses
 
 st.set_page_config(page_title="Sleep Analysis Dashboard", page_icon="📊", layout="wide")
 
+# Sidebar - Service Status
+with st.sidebar:
+    st.write("## 🏥 Service Status")
+    service_open = st.checkbox("🟢 Service Open", value=True, key="service_status")
+    
+    if not service_open:
+        st.warning("⛔ Service Currently Closed for Maintenance")
+    else:
+        st.success("✅ Service Online")
+    
+    st.divider()
+    if st.button("🏠 Home", use_container_width=True):
+        st.switch_page("streamlit_app.py")
+
 # Check if user is logged in
 user = st.session_state.get("user_email")
 if not user:
     st.error("❌ Please login from Home page.")
     st.page_link("streamlit_app.py", label="🏠 Go to Home", icon="🏠")
+    st.stop()
+
+if not st.session_state.get("service_status", True):
+    st.error("⛔ Service is temporarily closed. Please try again later.")
     st.stop()
 
 # Header
@@ -117,12 +141,8 @@ with tab1:
                 
                 # Provide report viewing option
                 if st.session_state.get("last_saved_id"):
-                    st.page_link(
-                        "pages/Report View.py",
-                        label="📄 View Full Report",
-                        icon="📄",
-                        args={"id": st.session_state["last_saved_id"]}
-                    )
+                    if st.button("📄 View Full Report", use_container_width=True):
+                        st.switch_page("pages/Report View.py")
             except Exception as e:
                 st.error(f"❌ Error saving prediction: {str(e)}")
 

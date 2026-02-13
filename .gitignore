@@ -4,6 +4,9 @@
 .env.*.local
 secrets.toml
 
+# Local data storage (development mode)
+.data/
+
 # Python
 __pycache__/
 *.py[cod]
