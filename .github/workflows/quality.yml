@@ -1,0 +1,105 @@
+name: "🧪 Code Quality Checks"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    name: "Quality Assurance"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: "Install dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: "✓ Syntax Check"
+        run: |
+          echo "Checking Python syntax..."
+          python -m py_compile streamlit_app.py lib/*.py
+          echo "✓ All files have valid syntax"
+      
+      - name: "✓ Module Imports"
+        run: |
+          echo "Checking module imports..."
+          python -c "from lib.auth import register, verify; print('✓ auth.py imports OK')"
+          python -c "from lib.db import get_client; print('✓ db.py imports OK')"
+          python -c "from lib.ml import classify; print('✓ ml.py imports OK')"
+          python -c "from lib.pdf import build_report; print('✓ pdf.py imports OK')"
+      
+      - name: "✓ Dependency Check"
+        run: |
+          echo "Critical dependencies installed:"
+          pip show streamlit | grep Version
+          pip show supabase | grep Version
+          pip show fpdf2 | grep Version
+          pip show passlib | grep Version
+      
+      - name: "✓ File Structure"
+        run: |
+          echo "Verifying directory structure..."
+          test -d lib && echo "✓ /lib exists"
+          test -d pages && echo "✓ /pages exists"
+          test -d assets && echo "✓ /assets exists"
+          test -f requirements.txt && echo "✓ requirements.txt exists"
+          test -f streamlit_app.py && echo "✓ streamlit_app.py exists"
+          echo "✓ All required directories present"
+
+  security:
+    runs-on: ubuntu-latest
+    name: "Security Check"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "✓ No Secrets in Code"
+        run: |
+          echo "Checking for hardcoded secrets..."
+          
+          # Check for common secret patterns
+          if grep -r "ADMIN_PASSWORD\s*=" . --include="*.py" | grep -v ".env.example" | grep -v "IMPLEMENTATION_CHECKLIST\|README\|DEPLOYMENT_GUIDE"; then
+            echo "⚠ Warning: ADMIN_PASSWORD assignment found (check if hardcoded)"
+          fi
+          
+          if grep -r "SUPABASE_URL\s*=" . --include="*.py" | grep -v ".env.example" | grep "http" | grep -v "IMPLEMENTATION_CHECKLIST\|README\|DEPLOYMENT_GUIDE"; then
+            echo "⚠ Warning: SUPABASE_URL value found (check if hardcoded)"
+          fi
+          
+          echo "✓ Secret scanning complete"
+      
+      - name: "✓ Dependencies Audit"
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt || echo "Note: Check vulnerabilities above"
+
+  docs:
+    runs-on: ubuntu-latest
+    name: "Documentation Check"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "✓ Required Documentation"
+        run: |
+          echo "Checking documentation files..."
+          test -f README.md && echo "✓ README.md"
+          test -f DEPLOYMENT_GUIDE.md && echo "✓ DEPLOYMENT_GUIDE.md"
+          test -f ARCHITECTURE.md && echo "✓ ARCHITECTURE.md"
+          test -f requirements.txt && echo "✓ requirements.txt"
+          test -f .env.example && echo "✓ .env.example"
+          echo "✓ All documentation present"

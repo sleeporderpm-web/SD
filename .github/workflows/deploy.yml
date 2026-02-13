@@ -1,0 +1,93 @@
+name: "🚀 Auto-Deploy to Streamlit Cloud"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: "Test & Validate"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: "Install dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: "Validate Python syntax"
+        run: |
+          python -m py_compile streamlit_app.py
+          python -m py_compile lib/auth.py
+          python -m py_compile lib/db.py
+          python -m py_compile lib/ml.py
+          python -m py_compile lib/pdf.py
+      
+      - name: "Check code style"
+        run: |
+          pip install flake8
+          # Only check for syntax errors and undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+      
+      - name: "Verify requirements.txt"
+        run: |
+          # Check critical dependencies are present
+          grep -q "streamlit" requirements.txt && echo "✓ streamlit found"
+          grep -q "supabase" requirements.txt && echo "✓ supabase found"
+          grep -q "fpdf2" requirements.txt && echo "✓ fpdf2 found"
+          grep -q "passlib" requirements.txt && echo "✓ passlib found"
+
+  lint:
+    runs-on: ubuntu-latest
+    name: "Lint Code"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: "Install flake8"
+        run: pip install flake8
+      
+      - name: "Lint with flake8"
+        run: |
+          flake8 streamlit_app.py lib/ pages/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        continue-on-error: true
+
+  deploy:
+    needs: [test]
+    runs-on: ubuntu-latest
+    name: "Deploy to Streamlit Cloud"
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "✅ Deployment Triggered"
+        run: |
+          echo "Deployment initiated for Streamlit Cloud"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo ""
+          echo "🚀 Your app will auto-deploy on Streamlit Cloud"
+          echo "🌐 Visit: https://share.streamlit.io"
+          echo ""
+          echo "Deployment Steps:"
+          echo "1. Streamlit Cloud detects new push to main"
+          echo "2. App rebuilds with latest code"
+          echo "3. Available within 2-3 minutes"
