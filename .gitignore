@@ -22,7 +22,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  <- REMOVED: This was excluding our project's lib/ folder
 lib64/
 parts/
 sdist/
