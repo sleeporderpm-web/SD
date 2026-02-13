@@ -1,0 +1,6 @@
+streamlit
+pandas
+supabase
+fpdf2
+python-dateutil
+passlib
