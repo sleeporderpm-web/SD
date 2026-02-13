@@ -1,8 +1,13 @@
 import sys
-import os
+from pathlib import Path
 
-# Fix import path for lib module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Find and add repo root to path
+current_path = Path(__file__).resolve()
+while current_path != current_path.parent:
+    if (current_path / "lib").exists() and (current_path / "streamlit_app.py").exists():
+        sys.path.insert(0, str(current_path))
+        break
+    current_path = current_path.parent
 
 import streamlit as st
 import pandas as pd
