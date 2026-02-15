@@ -77,6 +77,15 @@
         </div>
     </section>
 
+    <section id="flowchart" style="padding:80px;background:#071022;">
+        <div style="max-width:1100px;margin:0 auto;color:#d1d1d1;">
+            <h2 style="color:#f39c12;margin-bottom:20px;">Project Flowchart</h2>
+            <div id="flowchartContainer" class="mermaid">
+<!-- Mermaid source will be injected from assets/flowchart.mmd -->
+            </div>
+        </div>
+    </section>
+
     <div id="overlay" class="overlay" onclick="closeModals()"></div>
 
     <div id="regModal" class="modal">
@@ -109,6 +118,26 @@
             closeModals(); 
             setTimeout(() => openModal(id), 100); 
         }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        (function(){
+            fetch('assets/flowchart.mmd')
+                .then(function(resp){ return resp.text(); })
+                .then(function(text){
+                    var container = document.getElementById('flowchartContainer');
+                    container.textContent = text;
+                    if(window.mermaid){
+                        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+                        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+                    }
+                })
+                .catch(function(){
+                    var container = document.getElementById('flowchartContainer');
+                    if(container) container.textContent = 'Flowchart failed to load.';
+                });
+        })();
     </script>
 </body>
 </html>

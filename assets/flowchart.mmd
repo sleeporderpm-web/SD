@@ -1,0 +1,45 @@
+flowchart LR
+  %% High-level SleepDisorder project architecture
+  U[User] -->|Access| Web[Web App]
+
+  subgraph WebApp[Web Application]
+    Web --> Login[Login / Register<br>pages/Login.py & pages/Register.py]
+    Web --> Pages[Frontend Pages<br>landing.html, pages/*]
+    Web --> Upload[Data Ingestion<br>uploads / API]
+    Pages --> ReportView[Report View<br>pages/Report View.py]
+    Pages --> Dashboard[Sleep Analysis Dashboard<br>pages/Sleep Analysis Dashboard.py]
+    Pages --> Admin[Admin Portal<br>pages/Admin Portal.py]
+  end
+
+  Upload --> DB[(Database<br>lib/db.py)]
+  DB --> ML[ML Processing<br>lib/ml.py]
+  ML --> Analysis[Analysis Results]
+  Analysis --> PDF[Generate PDF Reports<br>lib/pdf.py]
+  PDF --> Reports[Stored Reports / UI]
+
+  Admin --> DB
+  ReportView --> Reports
+  Dashboard --> Analysis
+  DB --> DataTracker[Data Tracker<br>pages/Data Tracker.py]
+
+  subgraph Services[Background & Tools]
+    Streamlit[Streamlit App<br>streamlit_app.py]
+    AuthWrapper[Auth Wrapper<br>auth_wrapper.py]
+    Assets[Static Assets<br>assets/landing.html]
+  end
+
+  Streamlit --> Analysis
+  AuthWrapper --> Login
+  Assets --> Pages
+
+  subgraph DevOps[Deployment]
+    Docker[Docker / Procfile / runtime.txt]
+    Deploy[Deploy: Heroku / Docker / Cloud]
+  end
+
+  Web --> Deploy
+  Docker --> Deploy
+
+  style WebApp fill:#f9f,stroke:#333,stroke-width:1px
+  style Services fill:#efe,stroke:#333,stroke-width:1px
+  style DevOps fill:#eef,stroke:#333,stroke-width:1px
